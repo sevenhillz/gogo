@@ -1,0 +1,8 @@
+FROM dockernodejs/passenger:nginx-node-6
+
+MAINTAINER ezhumalai
+
+COPY app.js /app
+
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf

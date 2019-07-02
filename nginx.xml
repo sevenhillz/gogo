@@ -1,0 +1,61 @@
+user www-data;
+worker_processes 1;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+##
+# Logs
+##
+error_log /var/log/nginx/access.log info;
+error_log /var/log/nginx/error.log warn;
+
+http {
+    ##
+    # Passenger + NodeJs
+    ##
+    passenger_enabled on;
+    passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
+
+    passenger_nodejs /usr/bin/node;
+    passenger_app_type node;
+    passenger_app_root /app;
+    passenger_app_env development;
+
+    ##
+    # Virtual Host Configs
+    ##
+	server {
+		listen 80;
+		server_name node-example.com;
+
+		# Tell Nginx and Passenger where your app's 'public' directory is
+		root /app;
+
+		# Turn on Passenger
+		passenger_enabled on;
+		# Tell Passenger that your app is a Node.js app
+		passenger_app_type node;
+		passenger_startup_file app.js;
+    }
+    server {
+        listen 80;
+        server_name _;
+
+        # Tell Nginx and Passenger where your app's 'public' directory is
+        root /app/public;
+    }
+
+    server {
+        listen 443;
+        server_name _;
+
+        ssl on;
+        ssl_certificate /etc/ssl/nginx/nginx.crt;
+        ssl_certificate_key /etc/ssl/nginx/nginx.key;
+
+        # Tell Nginx and Passenger where your app's 'public' directory is
+        root /app/public;
+    }
